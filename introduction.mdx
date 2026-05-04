@@ -1,0 +1,48 @@
+---
+title: "What is ngitflow? Git Flow CLI for Node.js"
+description: "ngitflow automates Git Flow branch management and semantic version bumping for Node.js projects, handling branches, commits, and tags in one command."
+---
+
+ngitflow is a Node.js command-line tool that combines Git Flow branch management with automatic semantic version bumping. Instead of running `git flow` commands and updating `package.json` by hand, ngitflow handles both in a single step — creating branches, bumping versions, committing the change, and pushing tags as part of a consistent, repeatable workflow.
+
+## The Git Flow model
+
+Git Flow is a branching strategy built around two permanent branches:
+
+- **`master`** — always reflects production-ready code. Every commit on `master` is a tagged release.
+- **`develop`** — the integration branch where completed features accumulate before a release.
+
+Work is done on short-lived branches that branch off from and merge back into these:
+
+- **`feature/*`** — for individual features or fixes, branched from `develop`.
+- **`release/*`** — for preparing a release, branched from `develop` and merged into both `master` and `develop` when finished.
+
+ngitflow wraps `git-flow` (AVH Edition) to manage all of these branch operations. Every time you start or finish a branch, ngitflow also updates the version in `package.json` and commits the change automatically.
+
+## How versioning works
+
+ngitflow uses [semantic versioning](https://semver.org) (`MAJOR.MINOR.PATCH`) with prerelease identifiers to reflect the current state of a branch.
+
+On `develop`, the version is always a **snapshot** — a prerelease that signals work in progress. By default, the prerelease identifier is `snapshot`, giving versions like `1.0.1-snapshot.0`. When you start a release, ngitflow strips the prerelease suffix and bumps the version to the release number (e.g. `1.0.1`). When the release finishes, `develop` is bumped to the next snapshot (e.g. `1.0.2-snapshot.0`) and `master` retains the release tag.
+
+Feature branches follow the same pattern: when you start a feature named `my-feature`, the version becomes `1.0.1-my-feature.0`. When the feature finishes and merges back to `develop`, the version reverts to the current snapshot.
+
+<Note>
+  The snapshot identifier is configurable. You can change it to `beta`, `rc`, `alpha`, or any other string in your `.ngitflowrc` file.
+</Note>
+
+## Requirements
+
+Before using ngitflow, make sure you have the following installed:
+
+- **[git-flow AVH Edition](https://github.com/petervanderdoes/gitflow-avh/wiki/Installation)** — ngitflow calls `git flow` commands directly. The original git-flow is not supported; you need the AVH fork.
+- **Node.js `>=8.0.0`**
+- **npm `>=2.0.0`**
+
+<Warning>
+  ngitflow will not work without git-flow (AVH Edition). Install it before running `ngitflow init`.
+</Warning>
+
+## Next steps
+
+Once you have the prerequisites in place, head to the [quickstart](/quickstart) to initialize a repository and complete your first release.

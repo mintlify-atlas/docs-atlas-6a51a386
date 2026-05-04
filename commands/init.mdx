@@ -1,0 +1,40 @@
+---
+title: "ngitflow init — set up Git Flow branches"
+description: "Set up the Git Flow branch structure in your repository, creating master and develop branches and bumping package.json to the initial snapshot version."
+---
+
+Running `ngitflow init` bootstraps a repository for the ngitflow workflow. It runs `git flow init -d` with default branch naming conventions, ensures that `master` and `develop` branches exist, and immediately bumps `package.json` to a prerelease snapshot version (for example, from `1.0.0` to `1.0.0-snapshot.0`) so that commits on `develop` are always distinguishable from released versions.
+
+## Usage
+
+```bash
+ngitflow init
+```
+
+## Flags
+
+<ParamField path="-h, --help" type="boolean">
+  Print usage information and exit.
+</ParamField>
+
+## What happens when you run it
+
+1. Runs `git flow init -d` to initialize Git Flow with default branch names (`master` and `develop`).
+2. Reads the current version from `package.json`.
+3. Increments it to the next prerelease snapshot (e.g. `1.0.0` → `1.0.0-snapshot.0`) using the configured `prereleaseId` (default: `snapshot`).
+4. Writes the new version back to `package.json` and commits the change with the message `Bumping version to <version>`.
+
+## Example
+
+```bash
+ngitflow init
+```
+
+After running this command your repository will have two branches:
+
+- `master` — tracks production releases
+- `develop` — the integration branch where all feature and release work is merged
+
+<Note>
+  After initializing, set `develop` as the default branch in your Git hosting provider (GitHub, GitLab, Bitbucket, etc.) so that pull requests target it by default.
+</Note>

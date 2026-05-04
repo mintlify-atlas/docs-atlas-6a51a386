@@ -1,0 +1,85 @@
+---
+title: "Sync versions across multiple files"
+description: "Use the versionFiles option to keep version strings in sync across package.json, TypeScript constants, and any other file that embeds a version."
+---
+
+The `versionFiles` option lets you extend ngitflow's version bumping beyond the root `package.json`. Whenever ngitflow writes a new version, it also applies your configured replacements to every file in the list — then stages and commits them all in the same version bump commit.
+
+This is useful in monorepos where individual packages have their own `package.json`, in libraries that embed a version string in a TypeScript constants file, and anywhere else that a version number needs to stay in sync with the root package.
+
+## Field reference
+
+Each entry in `versionFiles` is an object with three fields:
+
+<ParamField path="file" type="string" required>
+  Path to the file to update, relative to the project root (the directory where `.ngitflowrc` lives). For example: `packages/core/package.json` or `src/constants.ts`.
+</ParamField>
+
+<ParamField path="regex" type="string" required>
+  A regular expression that matches the version string you want to replace. The pattern is applied using [`replace`](https://www.npmjs.com/package/replace) package semantics — capture groups work as you would expect, and the match is replaced in place.
+</ParamField>
+
+<ParamField path="replacement" type="string" required>
+  The replacement string. Use `$VERSION` as a placeholder where the actual version should appear. ngitflow substitutes the real version value for `$VERSION` before running the replacement. You can reference regex capture groups with `$1`, `$2`, etc. alongside `$VERSION`.
+</ParamField>
+
+## How replacement works
+
+When ngitflow bumps to a new version (for example, `1.2.0`), it:
+
+1. Takes your `replacement` string and substitutes `$VERSION` with `1.2.0`.
+2. Runs the resulting string as the replacement against your `regex` in the target `file`.
+3. Stages the updated file with `git add` so it is included in the version bump commit.
+
+## Examples
+
+### Syncing a nested package.json
+
+This entry updates the `version` field inside `packages/core/package.json`:
+
+```json
+{
+    "file": "packages/core/package.json",
+    "regex": "(\"version\"\\s*:\\s*\")[\\s\\S]*?\",",
+    "replacement": "$1$VERSION\","
+}
+```
+
+The capture group `$1` preserves the `"version": "` prefix, and `$VERSION` is replaced with the new version string.
+
+### Syncing a TypeScript constants file
+
+This entry updates an exported constant in a TypeScript file:
+
+```json
+{
+    "file": "src/constants.ts",
+    "regex": "export const VERSION = '[^']*';",
+    "replacement": "export const VERSION = '$VERSION';"
+}
+```
+
+## Adding multiple files
+
+You can list as many entries as you need. All of them are updated and committed together:
+
+```json
+{
+    "versionFiles": [
+        {
+            "file": "packages/core/package.json",
+            "regex": "(\"version\"\\s*:\\s*\")[\\s\\S]*?\",",
+            "replacement": "$1$VERSION\","
+        },
+        {
+            "file": "packages/ui/package.json",
+            "regex": "(\"version\"\\s*:\\s*\")[\\s\\S]*?\",",
+            "replacement": "$1$VERSION\","
+        }
+    ]
+}
+```
+
+<Tip>
+  All files listed in `versionFiles` are staged with `git add` and included in the same commit as the root `package.json` version bump. You do not need to stage them manually.
+</Tip>

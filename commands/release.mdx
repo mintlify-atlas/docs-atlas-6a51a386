@@ -1,0 +1,114 @@
+---
+title: "ngitflow release — start and finish releases"
+description: "Start and finish Git Flow release branches: auto-compute the next version, tag the release, and merge back to master and develop with one command."
+---
+
+The `release` command manages the full lifecycle of a Git Flow release branch. Use `release start` to cut a new release branch and bump `package.json` to the release version, then use `release finish` to tag the release, merge it into `master` and `develop`, and advance `develop` to the next snapshot version.
+
+<Tabs>
+  <Tab title="release start">
+
+## Usage
+
+```bash
+ngitflow release start [levelOrVersion]
+```
+
+## Arguments
+
+<ParamField path="levelOrVersion" type="string" default="patch">
+  How to compute the next version. Accepts `patch`, `minor`, `major`, `prerelease`, or an explicit semver string such as `1.15.0` or `1.15.0-alpha.0`. Defaults to `patch` when omitted.
+</ParamField>
+
+## Flags
+
+<ParamField path="-o, --offline" type="boolean">
+  Skip syncing the release branch with the remote. The branch is created locally only and not published.
+</ParamField>
+
+<ParamField path="-pi, --pre-id [preId]" type="string">
+  Prerelease identifier to use when `levelOrVersion` is `prerelease` (e.g. `rc`, `beta`).
+</ParamField>
+
+<ParamField path="-h, --help" type="boolean">
+  Print usage information and exit.
+</ParamField>
+
+## What happens when you run it
+
+1. Computes the next version from the current `package.json` version based on `levelOrVersion`, or uses the version string directly if an explicit version is provided.
+2. Creates a `release/<version>` branch via `git flow release start`.
+3. Unless `--offline` is set, publishes the branch to the remote with `git flow release publish`.
+4. Updates `package.json` to the release version (e.g. `1.0.1-snapshot.0` → `1.0.1`) and commits the change.
+
+## Examples
+
+```bash
+ngitflow release start
+ngitflow release start minor
+ngitflow release start major
+ngitflow release start 1.15.0
+ngitflow release start 1.15.0-alpha.0
+ngitflow release start prerelease --pre-id rc
+```
+
+  </Tab>
+  <Tab title="release finish">
+
+## Usage
+
+```bash
+ngitflow release finish
+```
+
+## Flags
+
+<ParamField path="-o, --offline" type="boolean">
+  Skip pushing tags and commits to the remote after finishing.
+</ParamField>
+
+<ParamField path="-h, --help" type="boolean">
+  Print usage information and exit.
+</ParamField>
+
+## What happens when you run it
+
+1. Reads the current version from `package.json` (which should be the release version set during `release start`).
+2. Runs `git flow release finish`, tagging the release as `v<version>` and merging the release branch into both `master` and `develop`.
+3. Bumps `develop` to the next snapshot prerelease version (e.g. `1.0.1` → `1.0.2-snapshot.0`) and commits the change.
+4. Unless `--offline` is set, pushes commits and tags to the remote.
+
+## Example
+
+```bash
+ngitflow release finish
+```
+
+<Note>
+  After `release finish`, `master` retains the release version (e.g. `1.0.1`) while `develop` is advanced to the next snapshot (e.g. `1.0.2-snapshot.0`).
+</Note>
+
+  </Tab>
+</Tabs>
+
+## Version bump behavior
+
+| Branch | Before | After |
+|--------|--------|-------|
+| `develop` (start) | `1.0.1-snapshot.0` | `1.0.1` |
+| `master` (finish) | `1.0.1` | `1.0.1` |
+| `develop` (finish) | `1.0.1` | `1.0.2-snapshot.0` |
+
+## Recommended npm scripts
+
+You can wire up release commands as npm scripts so you don't need to type the full command each time:
+
+```json
+{
+  "scripts": {
+    "release:start": "ngitflow release start",
+    "release:finish": "ngitflow release finish",
+    "release": "ngitflow release start && ngitflow release finish"
+  }
+}
+```

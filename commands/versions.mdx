@@ -1,0 +1,52 @@
+---
+title: "ngitflow versions — view project versions"
+description: "Print the current package version and optionally preview the next patch, minor, major, and prerelease versions without modifying any files."
+---
+
+The `versions` command reads your current version from `package.json` and prints it to the terminal. Pass `--all` to also display what the next patch, minor, major, and prerelease versions would be, giving you a quick overview before you decide which level to bump to.
+
+## Usage
+
+```bash
+ngitflow versions [options]
+```
+
+## Flags
+
+<ParamField path="-a, --all" type="boolean">
+  Print the current version followed by the next patch, minor, major, and prerelease versions.
+</ParamField>
+
+<ParamField path="-h, --help" type="boolean">
+  Print usage information and exit.
+</ParamField>
+
+## Examples
+
+Print only the current version:
+
+```bash
+ngitflow versions
+```
+
+Print the current version and all computed next versions:
+
+```bash
+ngitflow versions --all
+```
+
+## Sample output
+
+Running `ngitflow versions --all` on a project currently at `1.0.1-snapshot.0` produces:
+
+```
+1.0.1-snapshot.0
+Next patch version: 1.0.1
+Next minor version: 1.1.0
+Next major version: 2.0.0
+Next prerelease version: 1.0.1-snapshot.1
+```
+
+<Note>
+  The prerelease version shown uses the `prereleaseId` value from your `.ngitflowrc` configuration (default: `snapshot`). If you have customized `prereleaseId`, the output reflects that value.
+</Note>

@@ -1,0 +1,51 @@
+---
+title: "Configure ngitflow with .ngitflowrc"
+description: "The .ngitflowrc file lets you customize ngitflow's behavior — set a prerelease identifier and define additional files to update on every version bump."
+---
+
+The `.ngitflowrc` file is a JSON configuration file that you place in your project root. ngitflow reads it at startup using the [`rc`](https://www.npmjs.com/package/rc) package, which also merges in environment variables and CLI arguments, with the file serving as the base layer. Any option you set here applies to all ngitflow commands run in that directory.
+
+## Options
+
+<ParamField path="prereleaseId" type="string" default="snapshot">
+  The prerelease identifier appended to development versions. ngitflow uses this value when bumping to a prerelease version — for example, `1.0.1-snapshot.0`.
+
+  Common values: `snapshot`, `rc`, `beta`, `alpha`. You can use any valid semver prerelease label.
+</ParamField>
+
+<ParamField path="versionFiles" type="array" default="[]">
+  A list of additional files to update when the version changes. Each entry is an object with `file`, `regex`, and `replacement` fields that tell ngitflow how to locate and rewrite the version string in that file.
+
+  See [Sync versions across multiple files](/configuration/version-files) for a full field reference and examples.
+</ParamField>
+
+## Example configuration
+
+The following `.ngitflowrc` sets a `snapshot` prerelease identifier and syncs the version in a nested `package.json`:
+
+```json
+{
+    "versionFiles": [
+        {
+            "file": "projects/core/package.json",
+            "regex": "(\"version\"\\s*:\\s*\")[\\s\\S]*?\",",
+            "replacement": "$1$VERSION\","
+        }
+    ],
+    "prereleaseId": "snapshot"
+}
+```
+
+## How ngitflow discovers the file
+
+The `rc` package looks for `.ngitflowrc` starting in the current working directory and walking up through parent directories until it finds one. This means you can place a single `.ngitflowrc` at the repository root and it will be picked up regardless of which subdirectory you run ngitflow from.
+
+You can also inspect the active configuration at any time by running:
+
+```bash
+ngitflow config --list
+```
+
+<Note>
+  Commit `.ngitflowrc` to version control. This ensures every contributor and CI environment uses the same configuration without any manual setup.
+</Note>

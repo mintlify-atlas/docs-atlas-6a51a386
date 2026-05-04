@@ -1,0 +1,60 @@
+---
+title: "ngitflow config — view active configuration"
+description: "Print the merged ngitflow configuration, combining values from .ngitflowrc, environment variables, and CLI arguments, to help you verify your setup."
+---
+
+The `config` command displays the active configuration that ngitflow is using at runtime. Configuration is loaded via the `rc` package, which merges values from your `.ngitflowrc` file, environment variables, and CLI arguments in order of precedence. Running `ngitflow config --list` lets you confirm that your configuration file is being picked up correctly and inspect the effective values before running other commands.
+
+## Usage
+
+```bash
+ngitflow config [options]
+```
+
+## Flags
+
+<ParamField path="-l, --list" type="boolean">
+  Print all active configuration values as formatted JSON.
+</ParamField>
+
+<ParamField path="-h, --help" type="boolean">
+  Print usage information and exit.
+</ParamField>
+
+## Example
+
+```bash
+ngitflow config --list
+```
+
+## Sample output
+
+A project with no `.ngitflowrc` file will show the defaults:
+
+```json
+{
+  "versionFiles": [],
+  "prereleaseId": "snapshot"
+}
+```
+
+A project with a customized `.ngitflowrc` might show:
+
+```json
+{
+  "versionFiles": [
+    {
+      "file": "projects/core/package.json",
+      "regex": "(\"version\"\\s*:\\s*\")[\\s\\S]*?\",",
+      "replacement": "$1$VERSION\","
+    }
+  ],
+  "prereleaseId": "rc"
+}
+```
+
+<Tip>
+  Run `ngitflow config --list` when commands behave unexpectedly — it is the fastest way to confirm that your configuration file is being read and that all values are what you expect.
+</Tip>
+
+For details on the available configuration fields and how to set up your `.ngitflowrc` file, see [Configuration](/configuration/ngitflowrc).

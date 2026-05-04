@@ -1,0 +1,117 @@
+---
+title: "Automate releases with npm scripts"
+description: "Integrate ngitflow into your package.json scripts to run feature and release workflows with a single npm command, without remembering CLI syntax."
+---
+
+You can add ngitflow commands directly to the `scripts` section of your `package.json`. This gives your team a consistent, project-local interface for running releases and feature branches — no need to remember the full CLI syntax, and no risk of using the wrong arguments.
+
+## Installation
+
+Install ngitflow as a dev dependency so the version is pinned in `package-lock.json` and shared across your team:
+
+```bash
+npm install ngitflow --save-dev
+```
+
+<Tip>
+Installing as a dev dependency pins the exact ngitflow version in `package-lock.json`. This prevents version drift across machines and CI environments. Use a global install (`npm install -g ngitflow`) only for personal tooling where version pinning is not a concern.
+</Tip>
+
+If you prefer a global install:
+
+```bash
+npm install -g ngitflow
+```
+
+## Release scripts
+
+Add the following scripts to your `package.json` to cover the most common release operations:
+
+```json
+{
+  "scripts": {
+    "release:start": "ngitflow release start",
+    "release:finish": "ngitflow release finish",
+    "release": "ngitflow release start && ngitflow release finish"
+  }
+}
+```
+
+| Script | What it does |
+|---|---|
+| `release:start` | Creates the release branch and bumps the version to a clean semver |
+| `release:finish` | Merges the release into `master` and `develop`, tags `master`, and advances `develop` to the next snapshot |
+| `release` | Runs both steps back-to-back for a fully automated patch release |
+
+### Run a patch release end-to-end
+
+```bash
+npm run release
+```
+
+This is equivalent to:
+
+```bash
+ngitflow release start && ngitflow release finish
+```
+
+### Run a minor or major release
+
+The default bump level is `patch`. To release a minor or major version, pass the level as an argument or add dedicated scripts:
+
+```json
+{
+  "scripts": {
+    "release:minor": "ngitflow release start minor && ngitflow release finish",
+    "release:major": "ngitflow release start major && ngitflow release finish"
+  }
+}
+```
+
+```bash
+npm run release:minor
+npm run release:major
+```
+
+## Feature scripts
+
+Add these scripts to manage feature branches without typing the full CLI command:
+
+```json
+{
+  "scripts": {
+    "feature:start": "ngitflow feature start",
+    "feature:finish": "ngitflow feature finish"
+  }
+}
+```
+
+Pass the feature name using npm's `--` argument separator:
+
+```bash
+npm run feature:start -- myfeature
+# Equivalent to: ngitflow feature start myfeature
+
+npm run feature:finish
+# Equivalent to: ngitflow feature finish
+```
+
+If you omit the feature name, ngitflow generates a random one automatically.
+
+## Complete scripts reference
+
+Here is a full `scripts` block combining all of the above:
+
+```json
+{
+  "scripts": {
+    "feature:start": "ngitflow feature start",
+    "feature:finish": "ngitflow feature finish",
+    "release:start": "ngitflow release start",
+    "release:finish": "ngitflow release finish",
+    "release": "ngitflow release start && ngitflow release finish",
+    "release:minor": "ngitflow release start minor && ngitflow release finish",
+    "release:major": "ngitflow release start major && ngitflow release finish"
+  }
+}
+```

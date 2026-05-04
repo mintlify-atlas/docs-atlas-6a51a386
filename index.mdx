@@ -1,133 +1,79 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
-icon: 'star'
+title: "ngitflow — Git Flow automation for Node.js projects"
+description: "ngitflow is a CLI tool that automates Git Flow workflows with semantic version bumping for Node.js projects. Manage releases and features with a single command."
 ---
 
-## Setting up
+ngitflow brings Git Flow branch management and semantic versioning together in a simple command-line tool for Node.js projects. It handles the full release and feature lifecycle — from creating branches to bumping versions, committing changes, and pushing tags — so you can focus on writing code.
 
-Get your documentation site up and running in minutes.
-
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
-
-## Make it yours
-
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Install ngitflow and run your first release in minutes.
   </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
+  <Card title="Command reference" icon="terminal" href="/commands/init">
+    Explore every command: init, release, feature, bump, and more.
   </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+  <Card title="Configuration" icon="sliders" href="/configuration/ngitflowrc">
+    Customize prerelease IDs and track version strings across multiple files.
   </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
+  <Card title="Git Flow workflow" icon="code-branch" href="/guides/git-flow-workflow">
+    Understand how ngitflow maps to the Git Flow branching model.
   </Card>
-</Columns>
+</CardGroup>
 
-## Create beautiful pages
+## How it works
 
-Everything you need to create world-class documentation.
+ngitflow wraps `git-flow` (AVH Edition) with automatic `package.json` version management. Every branch operation — starting a release, finishing a feature — is paired with a semver bump and a commit so your version history stays clean.
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+<Steps>
+  <Step title="Install ngitflow">
+    Add ngitflow to your project or install it globally with npm.
 
-## Make your content agent ready
+    ```bash
+    npm install --save-dev ngitflow
+    ```
+  </Step>
+  <Step title="Initialize your repository">
+    Set up the Git Flow branch structure (`master` and `develop`) in one command.
 
-Make your docs work for humans and AI agents alike.
+    ```bash
+    npx ngitflow init
+    ```
+  </Step>
+  <Step title="Start a release">
+    Create a release branch and bump the version automatically.
 
-<Columns cols={2}>
-  <Card
-    title="Prompt component"
-    icon="robot"
-    href="/agent-ready/prompt"
-  >
-    Embed shareable AI prompts readers can copy or open in Cursor.
-  </Card>
-  <Card
-    title="Visibility"
-    icon="eye"
-    href="/agent-ready/visibility"
-  >
-    Show different content to humans and agents reading your docs.
-  </Card>
-  <Card
-    title="Contextual menu"
-    icon="bolt"
-    href="/agent-ready/contextual"
-  >
-    Give readers one-click access to Claude, ChatGPT, Cursor, and more.
-  </Card>
-  <Card
-    title="AI coding tools"
-    icon="wand-magic-sparkles"
-    href="/ai-tools/claude-code"
-  >
-    Set up Claude Code, Cursor, or Windsurf with Mintlify's skill.
-  </Card>
-</Columns>
+    ```bash
+    npx ngitflow release start
+    ```
+  </Step>
+  <Step title="Finish the release">
+    Merge back to `master` and `develop`, tag the release, and push.
 
-## Need inspiration?
+    ```bash
+    npx ngitflow release finish
+    ```
+  </Step>
+</Steps>
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+## Key features
+
+<CardGroup cols={2}>
+  <Card title="Automated branching" icon="code-branch">
+    Create and finish `release/*` and `feature/*` branches following the Git Flow model.
+  </Card>
+  <Card title="Semantic versioning" icon="tags">
+    Bump patch, minor, major, or prerelease versions with full semver support.
+  </Card>
+  <Card title="Automatic commits" icon="code-commit">
+    Version changes in `package.json` are staged and committed automatically.
+  </Card>
+  <Card title="Multi-file versioning" icon="files">
+    Keep version strings in sync across multiple files using `.ngitflowrc`.
+  </Card>
+  <Card title="Offline mode" icon="wifi-slash">
+    Use `--offline` to run releases without syncing to a remote repository.
+  </Card>
+  <Card title="Configurable prerelease IDs" icon="flask">
+    Use `snapshot`, `rc`, `beta`, `alpha`, or any custom identifier.
+  </Card>
+</CardGroup>

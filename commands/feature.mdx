@@ -1,0 +1,78 @@
+---
+title: "ngitflow feature — start and finish features"
+description: "Start and finish Git Flow feature branches, versioning package.json with the feature name as a prerelease identifier and merging back to develop when done."
+---
+
+The `feature` command handles the lifecycle of a Git Flow feature branch. Use `feature start` to create a branch and version your package with the feature name as a prerelease identifier, then use `feature finish` to merge the completed feature back into `develop` and restore the snapshot version.
+
+<Tabs>
+  <Tab title="feature start">
+
+## Usage
+
+```bash
+ngitflow feature start [name]
+```
+
+## Arguments
+
+<ParamField path="name" type="string">
+  Name of the feature. Used as the prerelease identifier in the version string (e.g. `myfeat` produces `1.0.1-myfeat.0`). If omitted, a random 7-character alphabetic name is generated automatically. Must result in a valid semver string.
+</ParamField>
+
+## What happens when you run it
+
+1. Reads the current version from `package.json`.
+2. Computes the feature version by using the feature name as a prerelease identifier (e.g. `1.0.1-snapshot.0` → `1.0.1-firstfeature.0`).
+3. Validates that the resulting version string is valid semver — an invalid feature name will cause the command to fail with an error.
+4. Creates a `feature/<name>` branch via `git flow feature start`.
+5. Updates `package.json` to the feature version and commits the change.
+
+## Examples
+
+```bash
+ngitflow feature start
+ngitflow feature start firstfeature
+```
+
+<Tip>
+  If you do not provide a name, ngitflow generates a random 7-character name for you. Providing an explicit name keeps your branch and version string meaningful.
+</Tip>
+
+  </Tab>
+  <Tab title="feature finish">
+
+## Usage
+
+```bash
+ngitflow feature finish
+```
+
+## What happens when you run it
+
+1. Checks for uncommitted changes — the command will fail with an error if your working tree is not clean.
+2. Reads the current feature version from `package.json` and extracts the feature prerelease identifier.
+3. Bumps the version back to the next snapshot prerelease (e.g. `1.0.1-firstfeature.0` → `1.0.1-snapshot.0`) and commits the change.
+4. Runs `git flow feature finish` to merge the feature branch into `develop`.
+5. Pushes `develop` to the remote.
+
+## Example
+
+```bash
+ngitflow feature finish
+```
+
+<Warning>
+  You must have a clean working tree before running `feature finish`. Commit or stash any pending changes first.
+</Warning>
+
+  </Tab>
+</Tabs>
+
+## Version bump behavior
+
+| Stage | Version |
+|-------|---------|
+| On `develop` before start | `1.0.1-snapshot.0` |
+| On feature branch | `1.0.1-firstfeature.0` |
+| On `develop` after finish | `1.0.1-snapshot.0` |

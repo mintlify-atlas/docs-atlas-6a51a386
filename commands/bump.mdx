@@ -1,0 +1,52 @@
+---
+title: "ngitflow bump — bump package version"
+description: "Bump the version in package.json and any configured version files with a single command, then automatically stage and commit the result to git."
+---
+
+The `bump` command updates the version in `package.json` (and any additional version files configured in `.ngitflowrc`) and immediately commits the result. It accepts the same level or explicit version arguments as the `release` command, making it a flexible low-level utility for version management. The `release` and `feature` commands use `bump` internally as part of their workflows.
+
+## Usage
+
+```bash
+ngitflow bump [levelOrVersion]
+```
+
+## Arguments
+
+<ParamField path="levelOrVersion" type="string" default="patch">
+  How to compute the new version. Accepts `patch`, `minor`, `major`, `prerelease`, or an explicit semver string such as `1.15.0` or `1.15.0-alpha.0`. Defaults to `patch` when omitted.
+</ParamField>
+
+## Flags
+
+<ParamField path="-pi, --pre-id [preId]" type="string">
+  Prerelease identifier to use when `levelOrVersion` is `prerelease` (e.g. `rc`, `beta`, `alpha`).
+</ParamField>
+
+<ParamField path="-h, --help" type="boolean">
+  Print usage information and exit.
+</ParamField>
+
+## What happens when you run it
+
+1. Computes the new version from the current `package.json` version based on `levelOrVersion`, or uses the version string directly if an explicit version is provided.
+2. Runs `npm version` with `--no-git-tag-version` to update `package.json` and `package-lock.json` without creating a git tag.
+3. Updates any additional version files defined in `.ngitflowrc` under `versionFiles` using regex replacement.
+4. Stages `package.json`, `package-lock.json`, and any configured version files with `git add`.
+5. Commits with the message `Bumping version to <version>`.
+
+## Examples
+
+```bash
+ngitflow bump
+ngitflow bump patch
+ngitflow bump minor
+ngitflow bump major
+ngitflow bump 1.15.0
+ngitflow bump 1.15.0-alpha.0
+ngitflow bump prerelease --pre-id rc
+```
+
+<Note>
+  `bump` is a lower-level utility. For standard release workflows, prefer `ngitflow release start` and `ngitflow release finish`, which orchestrate branching, publishing, and merging in addition to version bumping.
+</Note>

@@ -1,0 +1,70 @@
+{
+  "projectType": "cli-tool",
+  "projectName": "ngitflow",
+  "projectDescription": "A Node.js CLI tool that automates Git Flow workflows with semantic version bumping for Node.js projects.",
+  "theme": "palm",
+  "primaryColor": "#fac704",
+  "lightColor": "#c12306",
+  "darkColor": null,
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Commands",
+            "pages": [
+              "commands/init",
+              "commands/release",
+              "commands/feature",
+              "commands/bump",
+              "commands/versions",
+              "commands/config"
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": [
+              "configuration/ngitflowrc",
+              "configuration/version-files"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/git-flow-workflow",
+              "guides/npm-scripts",
+              "guides/troubleshooting"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Automated Git Flow branch management (init, feature, release)",
+    "Semantic version bumping with semver support (patch, minor, major, prerelease)",
+    "Automatic package.json version updates and git commits",
+    "Custom version file updates via .ngitflowrc configuration",
+    "Offline mode support for release operations",
+    "Configurable prerelease identifiers (snapshot, rc, beta, alpha)"
+  ],
+  "publicApiSurface": [
+    "ngitflow init",
+    "ngitflow release start [levelOrVersion]",
+    "ngitflow release finish",
+    "ngitflow feature start [name]",
+    "ngitflow feature finish",
+    "ngitflow bump [levelOrVersion]",
+    "ngitflow versions",
+    "ngitflow versions --all",
+    "ngitflow config --list"
+  ]
+}

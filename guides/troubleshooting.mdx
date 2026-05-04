@@ -1,0 +1,138 @@
+---
+title: "Troubleshooting ngitflow"
+description: "Solutions to common errors when using ngitflow, including missing dependencies, invalid names, uncommitted changes, and version file configuration issues."
+---
+
+Most ngitflow errors fall into a small set of categories: a missing system dependency, running the command from the wrong directory, or a misconfigured `.ngitflowrc` file. The sections below cover the most frequent issues and how to resolve them.
+
+<AccordionGroup>
+  <Accordion title='"git flow" command not found'>
+    **Cause:** ngitflow delegates branch management to git-flow AVH Edition, which must be installed separately. If the `git flow` command is not available on your system, ngitflow cannot function.
+
+    **Fix:** Install git-flow AVH Edition by following the instructions for your operating system on the [official installation page](https://github.com/petervanderdoes/gitflow-avh/wiki/Installation).
+
+    After installing, verify it works:
+
+    ```bash
+    git flow version
+    ```
+  </Accordion>
+
+  <Accordion title='"package.json not found" error'>
+    **Cause:** ngitflow reads the version from `package.json` in the current working directory. If you run the command from a subdirectory or the wrong folder, it cannot find the file.
+
+    **Fix:** Change to your project root (the directory that contains `package.json`) before running any ngitflow command:
+
+    ```bash
+    cd /path/to/your/project
+    ngitflow release start
+    ```
+  </Accordion>
+
+  <Accordion title='"Invalid feature name" error'>
+    **Cause:** ngitflow uses the feature name as a semver prerelease identifier (e.g. `1.0.1-myfeature.0`). If the name contains spaces, special characters, or other characters that produce an invalid semver string, the command is rejected before any branch is created.
+
+    **Fix:** Use alphanumeric names, hyphens, or underscores only. Avoid spaces and special characters:
+
+    ```bash
+    # Valid
+    ngitflow feature start my-feature
+    ngitflow feature start feat123
+
+    # Invalid — will error
+    ngitflow feature start "my feature"
+    ngitflow feature start my@feature
+    ```
+  </Accordion>
+
+  <Accordion title='"You have uncommitted changes" error during feature finish'>
+    **Cause:** ngitflow checks for a clean git status before finishing a feature. If any tracked or untracked files have been modified, it stops to prevent accidental data loss during the merge.
+
+    **Fix:** Commit or stash all pending changes before running `ngitflow feature finish`:
+
+    ```bash
+    # Option 1: commit your changes
+    git add .
+    git commit -m "your message"
+
+    # Option 2: stash them temporarily
+    git stash
+
+    ngitflow feature finish
+    ```
+  </Accordion>
+
+  <Accordion title='"Cannot see status" error'>
+    **Cause:** ngitflow runs `git status` internally to check for uncommitted changes. If the command fails — for example because you are not inside a git repository — ngitflow reports this error.
+
+    **Fix:** Make sure you are inside a git repository and that `git status` runs without errors:
+
+    ```bash
+    git status
+    ```
+
+    If you are not in a repository, run `ngitflow init` first or navigate to an existing repository.
+  </Accordion>
+
+  <Accordion title="Release branch already exists">
+    **Cause:** A previous `ngitflow release start` created a release branch that was never finished. Running `release start` again fails because git-flow will not create a duplicate branch.
+
+    **Fix:** Either finish the existing release, or delete the branch manually and try again:
+
+    ```bash
+    # Delete the stale release branch
+    git branch -d release/<version>
+
+    # Then start a fresh release
+    ngitflow release start
+    ```
+
+    <Warning>
+      Using `git branch -D` (force delete) will permanently discard any commits on the branch that have not been merged elsewhere. Only use force delete if you are certain those commits can be discarded.
+    </Warning>
+  </Accordion>
+
+  <Accordion title="Version not bumping correctly with --pre-id">
+    **Cause:** The `--pre-id` flag only applies when the bump level is `prerelease`. Passing `--pre-id` with any other level (e.g. `patch`, `minor`) has no effect, which can make it appear that the flag is being ignored.
+
+    **Fix:** Specify `prerelease` as the level explicitly before using `--pre-id`:
+
+    ```bash
+    # Correct
+    ngitflow release start prerelease --pre-id rc
+
+    # Incorrect — --pre-id is ignored here
+    ngitflow release start --pre-id rc
+    ```
+  </Accordion>
+
+  <Accordion title="Version files not being updated">
+    **Cause:** If you have configured `versionFiles` in `.ngitflowrc`, each entry requires a `regex` that matches the version string in that file. If the regex does not match, the file is silently left unchanged.
+
+    **Fix:** Check that:
+
+    1. The `file` path is relative to the project root.
+    2. The `regex` matches the actual content of the file. Test it independently before adding it to `.ngitflowrc`.
+    3. The `replacement` string includes `$VERSION` where the version should be substituted.
+
+    Use `ngitflow config --list` to confirm that your configuration file is being loaded correctly:
+
+    ```bash
+    ngitflow config --list
+    ```
+
+    An example of a valid `versionFiles` entry:
+
+    ```json
+    {
+      "versionFiles": [
+        {
+          "file": "projects/core/package.json",
+          "regex": "(\"version\"\\s*:\\s*\")[\\s\\S]*?\",",
+          "replacement": "$1$VERSION\","
+        }
+      ]
+    }
+    ```
+  </Accordion>
+</AccordionGroup>

@@ -1,0 +1,135 @@
+---
+title: "Git Flow workflow with ngitflow"
+description: "Learn how ngitflow automates the Git Flow branching model with automatic semantic version bumping across feature and release branches in Node.js projects."
+---
+
+ngitflow automates the Git Flow branching model by combining branch management with automatic semantic version bumping. Instead of manually running `git flow` commands and editing `package.json`, ngitflow handles both in a single command — creating the branch, computing the next version, and committing the update for you.
+
+## Branch overview
+
+ngitflow works with four branch types, each carrying a predictable version format:
+
+| Branch | Purpose | Version format |
+|---|---|---|
+| `master` | Production-ready code; always reflects a tagged release | `1.0.1` (tagged) |
+| `develop` | Integration branch for completed features | `1.0.2-snapshot.0` |
+| `feature/*` | Individual feature development | `1.0.1-myfeature.0` |
+| `release/*` | Release preparation; final QA before merging to master | `1.0.2` |
+
+<Note>
+Set `develop` as your default branch in your git hosting provider (GitHub, GitLab, Bitbucket, etc.). This ensures that pull requests and clones point to the integration branch rather than `master`.
+</Note>
+
+## Version lifecycle
+
+The version in `package.json` changes automatically at each stage of the workflow. Here is a complete example starting from `1.0.1-snapshot.0` on `develop`:
+
+| Stage | Branch | Version |
+|---|---|---|
+| Initial state | `develop` | `1.0.1-snapshot.0` |
+| After `feature start myfeature` | `feature/myfeature` | `1.0.1-myfeature.0` |
+| After `feature finish` | `develop` | `1.0.1-snapshot.0` |
+| After `release start` | `release/1.0.1` | `1.0.1` |
+| After `release finish` (master) | `master` | `1.0.1` (tagged `v1.0.1`) |
+| After `release finish` (develop) | `develop` | `1.0.2-snapshot.0` |
+
+## Full release cycle walkthrough
+
+<Steps>
+  <Step title="Initialize the repository">
+    Run `ngitflow init` once in a new repository. This sets up git-flow with `master` and `develop` branches and sets the initial snapshot version on `develop`.
+
+    ```bash
+    ngitflow init
+    ```
+  </Step>
+
+  <Step title="Start a feature branch">
+    Begin work on a new feature. ngitflow creates a `feature/myfeature` branch from `develop` and bumps the version to use the feature name as the prerelease identifier.
+
+    ```bash
+    ngitflow feature start myfeature
+    # Branch: feature/myfeature
+    # Version: 1.0.1-myfeature.0
+    ```
+
+    If you omit the feature name, ngitflow generates a random one:
+
+    ```bash
+    ngitflow feature start
+    ```
+  </Step>
+
+  <Step title="Develop and commit your changes">
+    Work on your feature and commit as usual. The version in `package.json` reflects the feature branch throughout development.
+  </Step>
+
+  <Step title="Finish the feature">
+    When the feature is complete, finish it. ngitflow bumps the version back to a snapshot prerelease and merges `feature/myfeature` back into `develop`.
+
+    ```bash
+    ngitflow feature finish
+    # Branch: develop
+    # Version: 1.0.1-snapshot.0
+    ```
+
+    Make sure all changes are committed before running this command — ngitflow checks for a clean git status and will refuse to proceed if there are uncommitted files.
+  </Step>
+
+  <Step title="Start a release branch">
+    When `develop` is ready to ship, start a release. ngitflow creates a `release/1.0.1` branch and sets a clean semver version (no prerelease suffix).
+
+    ```bash
+    ngitflow release start
+    # Branch: release/1.0.1
+    # Version: 1.0.1
+    ```
+
+    You can also target a specific bump level or an explicit version:
+
+    ```bash
+    ngitflow release start minor
+    ngitflow release start major
+    ngitflow release start 1.15.0
+    ```
+
+    Use `--offline` if you are working without remote access and want to skip pushing the release branch:
+
+    ```bash
+    ngitflow release start --offline
+    ```
+  </Step>
+
+  <Step title="Finish the release">
+    Finish the release to merge it into both `master` and `develop`, create a version tag on `master`, and advance `develop` to the next snapshot.
+
+    ```bash
+    ngitflow release finish
+    # master: 1.0.1 (tagged v1.0.1)
+    # develop: 1.0.2-snapshot.0
+    ```
+
+    Pass `--offline` to skip pushing changes and tags to the remote:
+
+    ```bash
+    ngitflow release finish --offline
+    ```
+  </Step>
+</Steps>
+
+## Prerelease identifiers
+
+By default, the snapshot identifier on `develop` is `snapshot`. You can change this project-wide using the `prereleaseId` key in `.ngitflowrc`:
+
+```json
+{
+  "prereleaseId": "beta"
+}
+```
+
+You can also use a custom prerelease id for a release using the `--pre-id` flag. This only applies when the bump level is `prerelease`:
+
+```bash
+ngitflow release start prerelease --pre-id rc
+# Version: 1.0.2-rc.0
+```
